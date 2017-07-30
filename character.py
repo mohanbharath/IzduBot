@@ -1,4 +1,7 @@
 """
+Created 25 Jul 17
+Modified 30 Jul 17
+
 @author = Bharath Mohan | MrMonday
 """
 import math
@@ -14,13 +17,13 @@ class Character:
        come through here. In addition, this cog also provides the functions to look up skill proficiencies or ability scores for characters, or
        get their modifiers. Essentially, if it has to do with the creation, playing, killing, or retirement of characters, it's through here."""
 
-    ability_lookup:{0: 'N/A', # there are better ways to do this, but for now I'm just going to copy-paste these dicts where needed
-                    1: 'STR',
-                    2: 'DEX',
-                    3: 'CON',
-                    4: 'INT',
-                    5: 'WIS',
-                    6: 'CHA'}
+    ability_lookup = {0: 'N/A', # there are better ways to do this, but for now I'm just going to copy-paste these dicts where needed
+                      1: 'STR',
+                      2: 'DEX',
+                      3: 'CON',
+                      4: 'INT',
+                      5: 'WIS',
+                      6: 'CHA'}
     skill_lookup = {1: 'athletics',
                     2: 'acrobatics',
                     3: 'sleight',
@@ -88,13 +91,13 @@ class Character:
             armor_class = 10 + initiative
             db.add_char(guild_id, user_id, name, race, char_class, lvl, align, hit_die, hit_die, str, dex, con, int, wis, cha, initiative, armor_class, spell_stat, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             char_name = db.get_name(guild_id, user_id)
-            await ctx.send("{} - Character {} has been created! Please note that your character currently has no skill or save proficiencies - please use izd!gainskillprof and izd!gainsaveprof to add those. In addition, your character has the default armor class (10 + DEX modifier) - if you want to equip armor with an AC bonus, use izd!changeac to adjust your AC value.".format(ctx.author.mention, char_name))
+            await ctx.send("{} - Character {} has been created! Please note that your character currently has no skill or save proficiencies - please use izd_gainskillprof and izd_gainsaveprof to add those. In addition, your character has the default armor class (10 + DEX modifier) - if you want to equip armor with an AC bonus, use izd_changeac to adjust your AC value.".format(ctx.author.mention, char_name))
             db.close_connection()
             return
 
     @commands.command()
     @commands.guild_only()
-    async def abilitycheck(self, ctx, ability_id: int):
+    async def abilitycheck(self, ctx, ability: str):
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -102,8 +105,16 @@ class Character:
             await ctx.send(content='You do not appear to have an active character in this campaign. This may be because you recently retired a character, or because you have not ever made a character in this campaign. Please make a character.')
             db.close_connection()
             return
-        if (ability_id < 1 or ability_id > 6):
-            await ctx.send(content="Ability ID is invalid! Please use the following mapping: 1 for STR, 2 for DEX, 3 for CON, 4 for INT, 5 for WIS, or 6 for CHA")
+        # if (ability_id < 1 or ability_id > 6):
+        #     await ctx.send(content="Ability ID is invalid! Please use the following mapping: 1 for STR, 2 for DEX, 3 for CON, 4 for INT, 5 for WIS, or 6 for CHA")
+        #     db.close_connection()
+        #     return
+        ability_id = -1
+        for k,v in self.ability_lookup.items():
+            if v.upper() == ability.upper():
+                ability_id = k
+        if ability_id < 1:
+            await ctx.send("Ability is invalid! Valid inputs are STR, DEX, CON, INT, WIS, CHA. Perhaps you misspelled your input?")
             db.close_connection()
             return
         ability_score = db.get_ability_score(guild_id, user_id, ability_id)
@@ -182,7 +193,7 @@ class Character:
 
     @commands.command()
     @commands.guild_only()
-    async def attackroll(self, ctx, ability_id: int, weapon_proficiency: int):
+    async def attackroll(self, ctx, ability: str, weapon_proficiency: int):
         # Filler
         guild_id = ctx.guild.id
         user_id = ctx.author.id
@@ -191,8 +202,12 @@ class Character:
             await ctx.send(content='You do not appear to have an active character in this campaign. This may be because you recently retired a character, or because you have not ever made a character in this campaign. Please make a character.')
             db.close_connection()
             return
-        if ability_id > 2 or ability_id < 1:
-            await ctx.send(content="Ability ID invalid! Attack rolls only accept either 1 or 2 for the ability ID: 1 for STR weapons, 2 for DEX weapons")
+        ability_id = -1
+        for k,v in self.ability_lookup.items():
+            if v.upper() == ability.upper():
+                ability_id = k
+        if ability_id < 1 or ability_id > 2:
+            await ctx.send(content="Ability is invalid! Attack rolls only accept either STR or DEX for the ability identifier.")
             db.close_connection()
             return
         if weapon_proficiency > 1 or weapon_proficiency < 0:
@@ -202,7 +217,6 @@ class Character:
         ability_score = db.get_ability_score(guild_id, user_id, ability_id)
         ability_mod = math.floor((ability_score - 10) / 2)
         char_lvl = db.get_level(guild_id, user_id)
-        skill_prof = db.get_skill_prof(guild_id, user_id, skill_id)
         if weapon_proficiency:
             proficiency_mod = 1 + math.ceil(char_lvl / 4)
         else:
@@ -221,7 +235,7 @@ class Character:
 
     @commands.command()
     @commands.guild_only()
-    async def abilitysave(self, ctx, ability_id: int):
+    async def abilitysave(self, ctx, ability: str):
         # Filler
         guild_id = ctx.guild.id
         user_id = ctx.author.id
@@ -230,11 +244,15 @@ class Character:
             await ctx.send(content='You do not appear to have an active character in this campaign. This may be because you recently retired a character, or because you have not ever made a character in this campaign. Please make a character.')
             db.close_connection()
             return
-        if (ability_id < 1 or ability_id > 6):
-            await ctx.send(content="Ability ID is invalid! Please use the following mapping: 1 for STR, 2 for DEX, 3 for CON, 4 for INT, 5 for WIS, or 6 for CHA")
+        ability_id = -1
+        for k,v in self.ability_lookup.items():
+            if v.upper() == ability.upper():
+                ability_id = k
+        if (ability_id < 1):
+            await ctx.send(content="Ability is invalid! Valid inputs are STR, DEX, CON, INT, WIS, CHA. Perhaps you misspelled your input?")
             db.close_connection()
             return
-        ability_score = database.get_ability_score(guild_id, user_id, ability_id)
+        ability_score = db.get_ability_score(guild_id, user_id, ability_id)
         ability_mod = math.floor((ability_score - 10) / 2)
         char_lvl = db.get_level(guild_id, user_id)
         save_prof = db.get_save_prof(guild_id, user_id, ability_id)
@@ -264,9 +282,9 @@ class Character:
             await ctx.send(content='You do not appear to have an active character in this campaign. This may be because you recently retired a character, or because you have not ever made a character in this campaign. Please make a character.')
             db.close_connection()
             return
-        ability_id = database.get_spell_stat(guild_id, user_id)
+        ability_id = db.get_spell_stat(guild_id, user_id)
         if ability_id == 0:
-            await ctx.send(content="Your class appears to not use spells; are you sure you didn't mean to use izd!attackroll (i.e. make an attack roll)?")
+            await ctx.send(content="You indicated at character creation that your class does not use spells; are you sure you didn't mean to use izd_attackroll (i.e., make an attack roll)?")
             db.close_connection()
             return
         ability_score = db.get_ability_score(guild_id, user_id, ability_id)
@@ -297,7 +315,7 @@ class Character:
             return
         ability_id = db.get_spell_stat(guild_id, user_id)
         if ability_id == 0:
-            await ctx.send(content="Your class appears to not use spells; why are you looking up your spell save DC?")
+            await ctx.send(content="You indicated at character creation that your class does not use spells, so you don't have a save DC.")
         ability_score = db.get_ability_score(guild_id, user_id, ability_id)
         ability_mod = math.floor((ability_score - 10) / 2)
         char_lvl = db.get_level(guild_id, user_id)
@@ -352,7 +370,7 @@ class Character:
 
     @commands.command()
     @commands.guild_only()
-    async def gainsaveprof(self, ctx, ability_id: int):
+    async def gainsaveprof(self, ctx, ability: str):
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -360,13 +378,17 @@ class Character:
             await ctx.send(content='You do not appear to have an active character in this campaign. This may be because you recently retired a character, or because you have not ever made a character in this campaign. Please make a character.')
             db.close_connection()
             return
-        if (ability_id < 1 or ability_id > 6):
-            await ctx.send(content='Ability Save ID is invalid! Please use the following mapping: 1 for STR, 2 for DEX, 3 for CON, 4 for INT, 5 for WIS, or 6 for CHA')
+        ability_id = -1
+        for k,v in self.ability_lookup.items():
+            if v.upper() == ability.upper():
+                ability_id = k
+        if (ability_id < 1):
+            await ctx.send(content='Ability for save is invalid! Valid inputs are STR, DEX, CON, INT, WIS, CHA. Perhaps you misspelled your input?')
             db.close_connection()
             return
         db.add_save_prof(guild_id, user_id, ability_id)
         char_name = db.get_name(guild_id, user_id)
-        await ctx.send(content='{} - {} Save Proficiency added to {}. If this was a typo or mistake, please tell your DM, and they can fix it.'.format(ctx.author.mention, ability_lookup[ability_id], char_name))
+        await ctx.send(content='{} - {} Save Proficiency added to {}. If this was a typo or mistake, please tell your DM, and they can fix it.'.format(ctx.author.mention, ability.upper(), char_name))
         db.close_connection()
         return
 

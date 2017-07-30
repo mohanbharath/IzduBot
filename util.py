@@ -1,4 +1,7 @@
 """
+Created 27 Jul 17
+Modified 29 Jul 17
+
 @author = Bharath Mohan | MrMonday
 """
 import math

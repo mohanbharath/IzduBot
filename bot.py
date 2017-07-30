@@ -1,4 +1,7 @@
 """
+Created: 23 Jul 17
+Modified: 30 Jul 17
+
 @author = Bharath Mohan | MrMonday
 """
 import discord
@@ -10,7 +13,7 @@ STARTUP_EXTENSIONS = ['world', 'character', 'util']
 
 class IzduBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix=commands.when_mentioned_or('izd!'), description="temp")
+        super().__init__(command_prefix=commands.when_mentioned_or('izd_'), description="temp")
         self.bot_token = config.token
         #self.api_key = "temp"
 
@@ -59,7 +62,8 @@ class IzduBot(commands.Bot):
 
     async def on_guild_remove(self, guild):
         # We're going to figure out what (if anything) needs to be done for this, but we don't want to remove the guild table in case it was an accident or something
-        pass
+        print("Left guild {}".format(str(guild.id)))
+        return
 
     def run(self):
         super().run(self.bot_token, reconnect=True)

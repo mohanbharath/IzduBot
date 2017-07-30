@@ -1,4 +1,7 @@
 """
+Created 24 Jul 17
+Modified 30 Jul 17
+
 @author = Bharath Mohan | MrMonday
 """
 import math
@@ -46,7 +49,7 @@ class World:
         try:
             rolls, sides = map(int, dice.split('d'))
         except:
-            await ctx.send(content='Improper command format. Proper command format is izd!advantage NdM K, where K is the number of rolls to keep')
+            await ctx.send(content='Improper command format. Proper command format is izd_advantage NdM K, where K is the number of rolls to keep')
             return
         results = sorted([randint(1, sides) for i in range(0, rolls)],reverse=True)
         kept = results[:keep]
@@ -67,7 +70,7 @@ class World:
         try:
             rolls, sides = map(int, dice.split('d'))
         except:
-            await ctx.send(content='Improper command format. Proper command format is izd!disadvantage NdM K, where K is the number of rolls to keep')
+            await ctx.send(content='Improper command format. Proper command format is izd_disadvantage NdM K, where K is the number of rolls to keep')
             return
         results = sorted([randint(1, sides) for i in range(0, rolls)])
         kept = results[:keep]
