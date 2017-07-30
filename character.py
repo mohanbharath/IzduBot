@@ -69,6 +69,13 @@ class Character:
     @commands.guild_only()
     async def create(self, ctx, str: int, dex: int, con: int, int: int, wis: int, cha: int, name: str, race: str, char_class: str, lvl: int,
                           align: int, hit_die: int, spell_stat: int):
+        """Creates a new character on the campaign server. Format: `izd_create STR DEX CON INT WIS CHA "name" "race" "class" level align_id hit_dice spell_stat`
+        \n where
+        align_id is between 1 and 9 inclusive, with 1-3 being Lawful Good, Lawful Neutral, and Lawful Evil, 4-6 being Neutral Good, True Neutral,
+        and Neutral Evil, and 7-9 being Chaotic Good, Chaotic Neutral, and Chaotic Evil respectively;
+        hit_dice being the hit dice for your class;
+        and spell_stat being the ability your class uses to cast spells, with 0 being for non-spell casters,
+        1 for STR, 2 for DEX, 3 for CON, 4 for INT, 5 for WIS, and 6 for CHA."""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -98,6 +105,7 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def abilitycheck(self, ctx, ability: str):
+    """Do an ability check. Format: izd_abilitycheck "ability", where ability is STR, DEX, CON, INT, WIS, or CHA"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -134,7 +142,9 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def skillcheck(self, ctx, skill_id: int):
-        # Filler
+        """Do a skill check. Format: izd_skillcheck skill_id, where skill_id is 1 for Athletics, 2 for Acrobatics, 3 for Sleight of Hand,
+        4 for Stealth, 5 for Arcana, 6 for History, 7 for Investigation, 8 for Nature, 9 for Religion, 10 for Animal Handling, 11 for Insight,
+        12 for Medicine, 13 for Perception, 14 for Survival, 15 for Deception, 16 for Intimidation, 17 for Performance, 18 for Persuasion"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -170,7 +180,8 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def initiativeroll(self, ctx):
-        # Filler
+        """Does an initiative roll. Currently, IzduBot doesn't keep track of initiative, so this is just a roll with your initiative modifier.
+        Format: izd_initiativeroll"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -194,7 +205,8 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def attackroll(self, ctx, ability: str, weapon_proficiency: int):
-        # Filler
+        """Does an attack roll. Format: izd_attackroll "ability" weapon_proficiency, where "ability" is the same as with abilitycheck and
+        weapon_proficiency is 1 if you have proficiency with the weapon being used, 0 otherwise"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -236,7 +248,7 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def abilitysave(self, ctx, ability: str):
-        # Filler
+        """ Does an ability save. Format: izd_abilitysave "ability", where ability is STR, DEX, CON, INT, WIS, or CHA"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -275,6 +287,7 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def spellattack(self, ctx):
+        """Makes a spell attack roll. Format: izd_spellattack"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -306,6 +319,7 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def spellsavedc(self, ctx):
+        """Outputs the save DC for your character's spells. Format: izd_spellsavedc"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -359,6 +373,8 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def healcharacter(self, ctx, target: discord.Member, heal_amt: int):
+        """One character (or the DM) heals another character. Format: izd_healcharacter @targetplayer heal_amt
+        , where @targetplayer is a MENTION of the player to heal, and heal_amt is the amount to heal them (DOES NOT ACCEPT DICE ROLLS, ONLY NUMBERS)."""
         guild_id = ctx.guild.id
         user_id = target.id
         db = database.Database("guilds.db")
@@ -408,7 +424,7 @@ class Character:
             return
         db.add_skill_prof(guild_id, user_id, skill_id)
         char_name = db.get_name(guild_id, user_id)
-        await ctx.send(content='{} - {} Skill Proficiency ({}) added to {}. If this was a typo or mistake, please tell your DM, and they can fix it.'.format(ctx.author.mention, skill_lookup[skill_id], ability_lookup[skill_to_ability_lookup[skill_id]], char_name))
+        await ctx.send(content='{} - {} Skill Proficiency ({}) added to {}. If this was a typo or mistake, please tell your DM, and they can fix it.'.format(ctx.author.mention, self.skill_lookup[skill_id], ability_lookup[skill_to_ability_lookup[skill_id]], char_name))
         db.close_connection()
         return
 
