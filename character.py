@@ -1,6 +1,6 @@
 """
 Created 25 Jul 17
-Modified 30 Jul 17
+Modified 03 Aug 17
 
 @author = Bharath Mohan | MrMonday
 """
@@ -104,8 +104,23 @@ class Character:
 
     @commands.command()
     @commands.guild_only()
-    async def abilitycheck(self, ctx, ability: str):
-    """Do an ability check. Format: izd_abilitycheck "ability", where ability is STR, DEX, CON, INT, WIS, or CHA"""
+    async def retire(self, ctx):
+        """Retire a character from the campaign. Format: izd_retire"""
+        guild_id = ctx.guild.id
+        user_id = ctx.author.id
+        db = database.Database("guilds.db")
+        if not db.has_char(guild_id, user_id):
+            await ctx.send(content='You do not appear to have an active character in this campaign. This may be because you recently retired a character, or because you have not ever made a character in this campaign. Please make a character.')
+            db.close_connection()
+            return
+        db.retire_char(guild_id, user_id)
+
+    @commands.command()
+    @commands.guild_only()
+    async def abilitycheck(self, ctx, ability: str, advantage: int = 0):
+        """Do an ability check. Format: izd_abilitycheck "ability" adv
+        where ability is STR, DEX, CON, INT, WIS, or CHA,
+        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -127,24 +142,40 @@ class Character:
             return
         ability_score = db.get_ability_score(guild_id, user_id, ability_id)
         ability_mod = math.floor((ability_score - 10) / 2)
-        dice_roll = randint(1, 20)
+        if (advantage > 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = max(first_roll, second_roll)
+            bad_roll = min(first_roll, second_roll)
+        elif (advantage < 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = min(first_roll, second_roll)
+            bad_roll = max(first_roll, second_roll)
+        else:
+            dice_roll = randint(1, 20)
         roll_result = max((dice_roll + ability_mod), 1) # Ability and skill checks technically don't go below one even if mathematically they are supposed to
         message = ctx.author.mention
         message += ": 1d20 "
         if ability_mod >= 0:
             message += "+ " + str(ability_mod) + " = " + str(dice_roll) + " + " + str(ability_mod) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + ability_mod), 1)
+                message += "\n~~1d20 + " + str(ability_mod) + " = " + str(bad_roll) + " + " + str(ability_mod) + " = " + str(other_roll_result) + "~~"
         else:
             message += "- " + str(abs(ability_mod)) + " = " + str(dice_roll) + " - " + str(abs(ability_mod)) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + ability_mod), 1)
+                message += "\n~~1d20 - " + str(abs(ability_mod)) + " = " + str(bad_roll) + " - " + str(abs(ability_mod)) + " = " + str(other_roll_result) + "~~"
         await ctx.send(content=message)
         db.close_connection()
         return
 
     @commands.command()
     @commands.guild_only()
-    async def skillcheck(self, ctx, skill_id: int):
-        """Do a skill check. Format: izd_skillcheck skill_id, where skill_id is 1 for Athletics, 2 for Acrobatics, 3 for Sleight of Hand,
-        4 for Stealth, 5 for Arcana, 6 for History, 7 for Investigation, 8 for Nature, 9 for Religion, 10 for Animal Handling, 11 for Insight,
-        12 for Medicine, 13 for Perception, 14 for Survival, 15 for Deception, 16 for Intimidation, 17 for Performance, 18 for Persuasion"""
+    async def skillcheck(self, ctx, skill: str, advantage: int = 0):
+        """Do a skill check. Format: izd_skillcheck "skill" adv, where skill is the first word of the skill you want to use;
+        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -152,11 +183,19 @@ class Character:
             await ctx.send(content='You do not appear to have an active character in this campaign. This may be because you recently retired a character, or because you have not ever made a character in this campaign. Please make a character.')
             db.close_connection()
             return
-        if (skill_id < 1 or skill_id > 18):
-            await ctx.send(content="Skill ID is invalid! Please use the following mapping:\n 1 for Athletics \n 2 for Acrobatics \n 3 for Sleight of Hand \n 4 for Stealth \n 5 for Arcana \n 6 for History \n 7 for Investigation \n 8 for Nature \n 9 for Religion \n 10 for Animal Handling \n 11 for Insight \n 12 for Medicine \n 13 for Perception \n 14 for Survival \n 15 for Deception \n 16 for Intimidation \n 17 for Performance \n 18 for Persuasion")
+        # if (skill_id < 1 or skill_id > 18):
+        #     await ctx.send(content="Skill ID is invalid! Please use the following mapping:\n 1 for Athletics \n 2 for Acrobatics \n 3 for Sleight of Hand \n 4 for Stealth \n 5 for Arcana \n 6 for History \n 7 for Investigation \n 8 for Nature \n 9 for Religion \n 10 for Animal Handling \n 11 for Insight \n 12 for Medicine \n 13 for Perception \n 14 for Survival \n 15 for Deception \n 16 for Intimidation \n 17 for Performance \n 18 for Persuasion")
+        #     db.close_connection()
+        #     return
+        skill_id = -1
+        for k,v in self.skill_lookup.items():
+            if v.upper() == skill.upper():
+                skill_id = k
+        if skill_id < 1:
+            await ctx.send("Skill is invalid! Valid inputs are Athletics, Acrobatics, Sleight, Stealth, Arcana, History, Investigation, Nature, Religion, Animal, Insight, Medicine, Perception, Survival, Deception, Intimidation, Performance, and Persuasion. Perhaps you misspelled your input?")
             db.close_connection()
             return
-        ability_id = skill_to_ability_lookup[skill_id]
+        ability_id = self.skill_to_ability_lookup[skill_id]
         ability_score = db.get_ability_score(guild_id, user_id, ability_id)
         ability_mod = math.floor((ability_score - 10) / 2)
         char_lvl = db.get_level(guild_id, user_id)
@@ -165,23 +204,41 @@ class Character:
             proficiency_mod = 1 + math.ceil(char_lvl / 4)
         else:
             proficiency_mod = 0
-        dice_roll = randint(1, 20)
+        if (advantage > 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = max(first_roll, second_roll)
+            bad_roll = min(first_roll, second_roll)
+        elif (advantage < 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = min(first_roll, second_roll)
+            bad_roll = max(first_roll, second_roll)
+        else:
+            dice_roll = randint(1, 20)
         roll_result = max((dice_roll + ability_mod + proficiency_mod), 1)
         message = ctx.author.mention
         message += ": 1d20 "
         if ability_mod >= 0:
             message += "+ " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(dice_roll) + " + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + ability_mod), 1)
+                message += "\n~~1d20 + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(bad_roll) + " + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(other_roll_result) + "~~"
         else:
             message += "- " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(dice_roll) + " - " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + ability_mod), 1)
+                message += "\n~~1d20 - " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(bad_roll) + " - " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(other_roll_result) + "~~"
         await ctx.send(content=message)
         db.close_connection()
         return
 
     @commands.command()
     @commands.guild_only()
-    async def initiativeroll(self, ctx):
+    async def initiativeroll(self, ctx, advantage: int = 0):
         """Does an initiative roll. Currently, IzduBot doesn't keep track of initiative, so this is just a roll with your initiative modifier.
-        Format: izd_initiativeroll"""
+        Format: izd_initiativeroll adv
+        where adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -190,23 +247,41 @@ class Character:
             db.close_connection()
             return
         initiative_mod = db.get_initiative(guild_id, user_id)
-        dice_roll = randint(1, 20)
+        if (advantage > 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = max(first_roll, second_roll)
+            bad_roll = min(first_roll, second_roll)
+        elif (advantage < 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = min(first_roll, second_roll)
+            bad_roll = max(first_roll, second_roll)
+        else:
+            dice_roll = randint(1, 20)
         roll_result = max((dice_roll + initiative_mod), 1)
         message = ctx.author.mention
         message += ": 1d20 "
         if initiative_mod >= 0:
             message += "+ " + str(initiative_mod) + " = " + str(dice_roll) + " + " + str(initiative_mod) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + initiative_mod), 1)
+                message += "\n~~1d20 + " + str(initiative_mod) + " = " + str(bad_roll) + " + " + str(initiative_mod) + " = " + str(other_roll_result) + "~~"
         else:
             message += "- " + str(abs(initiative_mod)) + " = " + str(dice_roll) + " - " + str(abs(initiative_mod)) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + initiative_mod), 1)
+                message += "\n~~1d20 - "+ str(abs(initiative_mod)) + " = " + str(bad_roll) + " - " + str(abs(initiative_mod)) + " = " + str(other_roll_result) + "~~"
         await ctx.send(content=message)
         db.close_connection()
         return
 
     @commands.command()
     @commands.guild_only()
-    async def attackroll(self, ctx, ability: str, weapon_proficiency: int):
-        """Does an attack roll. Format: izd_attackroll "ability" weapon_proficiency, where "ability" is the same as with abilitycheck and
-        weapon_proficiency is 1 if you have proficiency with the weapon being used, 0 otherwise"""
+    async def attackroll(self, ctx, ability: str, weapon_proficiency: int, advantage: int = 0):
+        """Does an attack roll. Format: izd_attackroll "ability" weapon_proficiency adv, where "ability" is the same as with abilitycheck;
+        weapon_proficiency is 1 if you have proficiency with the weapon being used, 0 otherwise;
+        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -233,22 +308,40 @@ class Character:
             proficiency_mod = 1 + math.ceil(char_lvl / 4)
         else:
             proficiency_mod = 0
-        dice_roll = randint(1, 20)
+        if (advantage > 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = max(first_roll, second_roll)
+            bad_roll = min(first_roll, second_roll)
+        elif (advantage < 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = min(first_roll, second_roll)
+            bad_roll = max(first_roll, second_roll)
+        else:
+            dice_roll = randint(1, 20)
         roll_result = max((dice_roll + ability_mod + proficiency_mod), 1)
         message = ctx.author.mention
         message += ": 1d20 "
         if ability_mod >= 0:
             message += "+ " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(dice_roll) + " + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + ability_mod + proficiency_mod), 1)
+                message += "\n~~1d20 + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(bad_roll) + " + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(other_roll_result) + "~~"
         else:
             message += "- " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(dice_roll) + " - " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + ability_mod + proficiency_mod), 1)
+                message += "\n~~1d20 + " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(bad_roll) + " - " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(other_roll_result) + "~~"
         await ctx.send(content=message)
         db.close_connection()
         return
 
     @commands.command()
     @commands.guild_only()
-    async def abilitysave(self, ctx, ability: str):
-        """ Does an ability save. Format: izd_abilitysave "ability", where ability is STR, DEX, CON, INT, WIS, or CHA"""
+    async def abilitysave(self, ctx, ability: str, advantage: int = 0):
+        """ Does an ability save. Format: izd_abilitysave "ability" adv, where ability is STR, DEX, CON, INT, WIS, or CHA;
+        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -272,22 +365,40 @@ class Character:
             proficiency_mod = 1 + math.ceil(char_lvl / 4)
         else:
             proficiency_mod = 0
-        dice_roll = randint(1, 20)
+        if (advantage > 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = max(first_roll, second_roll)
+            bad_roll = min(first_roll, second_roll)
+        elif (advantage < 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = min(first_roll, second_roll)
+            bad_roll = max(first_roll, second_roll)
+        else:
+            dice_roll = randint(1, 20)
         roll_result = max((dice_roll + ability_mod + proficiency_mod), 1)
         message = ctx.author.mention
         message += ": 1d20 "
         if ability_mod >= 0:
             message += "+ " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(dice_roll) + " + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + ability_mod + proficiency_mod), 1)
+                message += "\n~~1d20 + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(bad_roll) + " + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(other_roll_result) + "~~"
         else:
             message += "- " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(dice_roll) + " - " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + ability_mod + proficiency_mod), 1)
+                message += "\n~~1d20 - " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(bad_roll) + " - " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(other_roll_result) + "~~"
         await ctx.send(content=message)
         db.close_connection()
         return
 
     @commands.command()
     @commands.guild_only()
-    async def spellattack(self, ctx):
-        """Makes a spell attack roll. Format: izd_spellattack"""
+    async def spellattack(self, ctx, advantage: int = 0):
+        """Makes a spell attack roll. Format: izd_spellattack adv
+        where adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -304,14 +415,31 @@ class Character:
         ability_mod = math.floor((ability_score - 10) / 2)
         char_lvl = db.get_level(guild_id, user_id)
         proficiency_mod = 1 + math.ceil(char_lvl / 4)
-        dice_roll = randint(1, 20)
+        if (advantage > 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = max(first_roll, second_roll)
+            bad_roll = min(first_roll, second_roll)
+        elif (advantage < 0):
+            first_roll = randint(1, 20)
+            second_roll = randint(1, 20)
+            dice_roll = min(first_roll, second_roll)
+            bad_roll = max(first_roll, second_roll)
+        else:
+            dice_roll = randint(1, 20)
         roll_result = max((dice_roll + ability_mod + proficiency_mod), 1)
         message = ctx.author.mention
         message += ": 1d20 "
         if ability_mod >= 0:
             message += "+ " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(dice_roll) + " + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + ability_mod + proficiency_mod), 1)
+                message += "\n~~1d20 + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(bad_roll) + " + " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(other_roll_result) + "~~"
         else:
             message += "- " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(dice_roll) + " - " + str(abs(ability_mod)) + " + " + str(proficiency_mod) + " = " + str(roll_result)
+            if (advantage > 0 or advantage < 0):
+                other_roll_result = max((bad_roll + ability_mod + proficiency_mod), 1)
+                message += "\n~~1d20 - " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(bad_roll) + " - " + str(ability_mod) + " + " + str(proficiency_mod) + " = " + str(other_roll_result) + "~~"
         await ctx.send(content=message)
         db.close_connection()
         return
@@ -410,7 +538,7 @@ class Character:
 
     @commands.command()
     @commands.guild_only()
-    async def gainskillprof(self, ctx, skill_id: int):
+    async def gainskillprof(self, ctx, skill: str):
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -418,13 +546,21 @@ class Character:
             await ctx.send(content='You do not appear to have an active character in this campaign. This may be because you recently retired a character, or because you have not ever made a character in this campaign. Please make a character.')
             db.close_connection()
             return
-        if (skill_id < 1 or skill_id > 18):
-            await ctx.send(content="Skill ID is invalid! Please use the following mapping:\n 1 for Athletics \n 2 for Acrobatics \n 3 for Sleight of Hand \n 4 for Stealth \n 5 for Arcana \n 6 for History \n 7 for Investigation \n 8 for Nature \n 9 for Religion \n 10 for Animal Handling \n 11 for Insight \n 12 for Medicine \n 13 for Perception \n 14 for Survival \n 15 for Deception \n 16 for Intimidation \n 17 for Performance \n 18 for Persuasion")
+        # if (skill_id < 1 or skill_id > 18):
+        #     await ctx.send(content="Skill ID is invalid! Please use the following mapping:\n 1 for Athletics \n 2 for Acrobatics \n 3 for Sleight of Hand \n 4 for Stealth \n 5 for Arcana \n 6 for History \n 7 for Investigation \n 8 for Nature \n 9 for Religion \n 10 for Animal Handling \n 11 for Insight \n 12 for Medicine \n 13 for Perception \n 14 for Survival \n 15 for Deception \n 16 for Intimidation \n 17 for Performance \n 18 for Persuasion")
+        #     db.close_connection()
+        #     return
+        skill_id = -1
+        for k,v in self.skill_lookup.items():
+            if v.upper() == skill.upper():
+                skill_id = k
+        if skill_id < 1:
+            await ctx.send("Skill is invalid! Valid inputs are Athletics, Acrobatics, Sleight, Stealth, Arcana, History, Investigation, Nature, Religion, Animal, Insight, Medicine, Perception, Survival, Deception, Intimidation, Performance, and Persuasion. Perhaps you misspelled your input?")
             db.close_connection()
             return
         db.add_skill_prof(guild_id, user_id, skill_id)
         char_name = db.get_name(guild_id, user_id)
-        await ctx.send(content='{} - {} Skill Proficiency ({}) added to {}. If this was a typo or mistake, please tell your DM, and they can fix it.'.format(ctx.author.mention, self.skill_lookup[skill_id], ability_lookup[skill_to_ability_lookup[skill_id]], char_name))
+        await ctx.send(content='{} - {} Skill Proficiency ({}) added to {}. If this was a typo or mistake, please tell your DM, and they can fix it.'.format(ctx.author.mention, self.skill_lookup[skill_id], self.ability_lookup[self.skill_to_ability_lookup[skill_id]], char_name))
         db.close_connection()
         return
 

@@ -13,6 +13,8 @@ Invite link: ~~**Let IzduBot judge your players!**~~ CURRENTLY NOT OPEN TO THE P
   - Ability stats, level, name, race, class, alignment, max HP, current HP, temporary HP, initiative modifier, armor class, skill and save proficiencies.
 - Character rolls
   - Ability checks, Skill Checks, attack rolls, spell rolls, initiative rolls
+    - Roll advantage/disadvantage
+      - e.g. you might have advantage on certain skill or attack rolls as part of your class features, or because the DM said so
 
 ## Planned Features
 
@@ -28,8 +30,6 @@ Invite link: ~~**Let IzduBot judge your players!**~~ CURRENTLY NOT OPEN TO THE P
 - Character Features
   - Roll modifiers
     - e.g. your DM might give you a +3 to hit or save because of circumstances
-  - Roll advantage/disadvantage
-    - e.g. you might have advantage on certain skill or attack rolls as part of your class features, or because the DM said so
 
 ## FAQ
 
