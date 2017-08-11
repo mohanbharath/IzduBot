@@ -1,6 +1,6 @@
 """
 Created 25 Jul 17
-Modified 03 Aug 17
+Modified 10 Aug 17
 
 @author = Bharath Mohan | MrMonday
 """
@@ -65,6 +65,20 @@ class Character:
     def __init__(self, bot):
         self.bot = bot
 
+    def advantage_roll(self, advantage: int):
+        '''Helper command to handle d20 advantage/disadvantage rolls for checks'''
+        first_roll = randint(1,20)
+        second_roll = randint(1, 20)
+        if (advantage == 0):
+            return first_roll
+        elif (advantage > 0):
+            dice_roll = max(first_roll, second_roll)
+            bad_roll = min(first_roll, second_roll)
+        else:
+            dice_roll = min(first_roll, second_roll)
+            bad_roll = max(first_roll, second_roll)
+        return (dice_roll, bad_roll)
+
     @commands.command()
     @commands.guild_only()
     async def create(self, ctx, str: int, dex: int, con: int, int: int, wis: int, cha: int, name: str, race: str, char_class: str, lvl: int,
@@ -105,7 +119,8 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def retire(self, ctx):
-        """Retire a character from the campaign. Format: izd_retire"""
+        """Format: izd_retire
+           Retire the author's current character from the campaign """
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -118,9 +133,10 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def abilitycheck(self, ctx, ability: str, advantage: int = 0):
-        """Do an ability check. Format: izd_abilitycheck "ability" adv
+        """Format: izd_abilitycheck "ability" adv
         where ability is STR, DEX, CON, INT, WIS, or CHA,
-        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
+        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+        Does an ability check using the author's current character sheet."""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -142,18 +158,11 @@ class Character:
             return
         ability_score = db.get_ability_score(guild_id, user_id, ability_id)
         ability_mod = math.floor((ability_score - 10) / 2)
-        if (advantage > 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = max(first_roll, second_roll)
-            bad_roll = min(first_roll, second_roll)
-        elif (advantage < 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = min(first_roll, second_roll)
-            bad_roll = max(first_roll, second_roll)
+        if (advantage == 0):
+            dice_roll = self.advantage_roll(advantage)
         else:
-            dice_roll = randint(1, 20)
+            roll_list = self.advantage_roll(advantage)
+            dice_roll, bad_roll = roll_list[0], roll_list[1]
         roll_result = max((dice_roll + ability_mod), 1) # Ability and skill checks technically don't go below one even if mathematically they are supposed to
         message = ctx.author.mention
         message += ": 1d20 "
@@ -174,8 +183,10 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def skillcheck(self, ctx, skill: str, advantage: int = 0):
-        """Do a skill check. Format: izd_skillcheck "skill" adv, where skill is the first word of the skill you want to use;
-        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
+        """Format: izd_skillcheck "skill" adv,
+        where skill is the first word of the skill you want to use;
+        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+        Does a skill check using the author's current character sheet. """
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -204,18 +215,11 @@ class Character:
             proficiency_mod = 1 + math.ceil(char_lvl / 4)
         else:
             proficiency_mod = 0
-        if (advantage > 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = max(first_roll, second_roll)
-            bad_roll = min(first_roll, second_roll)
-        elif (advantage < 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = min(first_roll, second_roll)
-            bad_roll = max(first_roll, second_roll)
+        if (advantage == 0):
+            dice_roll = self.advantage_roll(advantage)
         else:
-            dice_roll = randint(1, 20)
+            roll_list = self.advantage_roll(advantage)
+            dice_roll, bad_roll = roll_list[0], roll_list[1]
         roll_result = max((dice_roll + ability_mod + proficiency_mod), 1)
         message = ctx.author.mention
         message += ": 1d20 "
@@ -236,9 +240,10 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def initiativeroll(self, ctx, advantage: int = 0):
-        """Does an initiative roll. Currently, IzduBot doesn't keep track of initiative, so this is just a roll with your initiative modifier.
-        Format: izd_initiativeroll adv
-        where adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
+        """Format: izd_initiativeroll adv
+        where adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+        Does an initiative roll using the author's current character sheet.
+        Currently, IzduBot doesn't keep track of initiative, so this is just a roll with the initiative modifier."""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -247,18 +252,11 @@ class Character:
             db.close_connection()
             return
         initiative_mod = db.get_initiative(guild_id, user_id)
-        if (advantage > 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = max(first_roll, second_roll)
-            bad_roll = min(first_roll, second_roll)
-        elif (advantage < 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = min(first_roll, second_roll)
-            bad_roll = max(first_roll, second_roll)
+        if (advantage == 0):
+            dice_roll = self.advantage_roll(advantage)
         else:
-            dice_roll = randint(1, 20)
+            roll_list = self.advantage_roll(advantage)
+            dice_roll, bad_roll = roll_list[0], roll_list[1]
         roll_result = max((dice_roll + initiative_mod), 1)
         message = ctx.author.mention
         message += ": 1d20 "
@@ -279,9 +277,11 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def attackroll(self, ctx, ability: str, weapon_proficiency: int, advantage: int = 0):
-        """Does an attack roll. Format: izd_attackroll "ability" weapon_proficiency adv, where "ability" is the same as with abilitycheck;
+        """Format: izd_attackroll "ability" weapon_proficiency adv,
+        where "ability" is the same as with abilitycheck;
         weapon_proficiency is 1 if you have proficiency with the weapon being used, 0 otherwise;
-        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
+        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+        Does an attack roll using the author's character sheet"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -308,18 +308,11 @@ class Character:
             proficiency_mod = 1 + math.ceil(char_lvl / 4)
         else:
             proficiency_mod = 0
-        if (advantage > 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = max(first_roll, second_roll)
-            bad_roll = min(first_roll, second_roll)
-        elif (advantage < 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = min(first_roll, second_roll)
-            bad_roll = max(first_roll, second_roll)
+        if (advantage == 0):
+            dice_roll = self.advantage_roll(advantage)
         else:
-            dice_roll = randint(1, 20)
+            roll_list = self.advantage_roll(advantage)
+            dice_roll, bad_roll = roll_list[0], roll_list[1]
         roll_result = max((dice_roll + ability_mod + proficiency_mod), 1)
         message = ctx.author.mention
         message += ": 1d20 "
@@ -365,18 +358,11 @@ class Character:
             proficiency_mod = 1 + math.ceil(char_lvl / 4)
         else:
             proficiency_mod = 0
-        if (advantage > 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = max(first_roll, second_roll)
-            bad_roll = min(first_roll, second_roll)
-        elif (advantage < 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = min(first_roll, second_roll)
-            bad_roll = max(first_roll, second_roll)
+        if (advantage == 0):
+            dice_roll = self.advantage_roll(advantage)
         else:
-            dice_roll = randint(1, 20)
+            roll_list = self.advantage_roll(advantage)
+            dice_roll, bad_roll = roll_list[0], roll_list[1]
         roll_result = max((dice_roll + ability_mod + proficiency_mod), 1)
         message = ctx.author.mention
         message += ": 1d20 "
@@ -415,18 +401,11 @@ class Character:
         ability_mod = math.floor((ability_score - 10) / 2)
         char_lvl = db.get_level(guild_id, user_id)
         proficiency_mod = 1 + math.ceil(char_lvl / 4)
-        if (advantage > 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = max(first_roll, second_roll)
-            bad_roll = min(first_roll, second_roll)
-        elif (advantage < 0):
-            first_roll = randint(1, 20)
-            second_roll = randint(1, 20)
-            dice_roll = min(first_roll, second_roll)
-            bad_roll = max(first_roll, second_roll)
+        if (advantage == 0):
+            dice_roll = self.advantage_roll(advantage)
         else:
-            dice_roll = randint(1, 20)
+            roll_list = self.advantage_roll(advantage)
+            dice_roll, bad_roll = roll_list[0], roll_list[1]
         roll_result = max((dice_roll + ability_mod + proficiency_mod), 1)
         message = ctx.author.mention
         message += ": 1d20 "

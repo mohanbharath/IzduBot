@@ -9,12 +9,21 @@ Invite link: ~~**Let IzduBot judge your players!**~~ CURRENTLY NOT OPEN TO THE P
 ## Current Features
 
 - Simple Dice rolling (of course) with advantage/disadvantage
-- Character info storing
-  - Ability stats, level, name, race, class, alignment, max HP, current HP, temporary HP, initiative modifier, armor class, skill and save proficiencies.
-- Character rolls
-  - Ability checks, Skill Checks, attack rolls, spell rolls, initiative rolls
-    - Roll advantage/disadvantage
-      - e.g. you might have advantage on certain skill or attack rolls as part of your class features, or because the DM said so
+- Character Features
+  - Character sheet info storing
+    - Ability stats, level, name, race, class, alignment, max HP, current HP, temporary HP, initiative modifier, armor class, skill and save proficiencies.
+  - Character rolls
+    - Ability checks, Skill Checks, attack rolls, spell rolls, initiative rolls
+      - Roll advantage/disadvantage
+        - e.g. you might have advantage on certain skill or attack rolls as part of your class features, or because the DM said so
+- DM Features
+  - Monster Stat blocks
+    - i.e. track basic monster stats. DOES NOT CURRENTLY SUPPORT MONSTER SKILLS, LEGENDARY ACTIONS, OR OTHER ADVANCED FEATURES
+  - Monster rolls
+    - Attack rolls, save rolls
+  - Monster session tracking
+    - Add monsters to your session and IzduBot can keep track of their HP so you don't have to write it down, so long as you remember to deduct HP using the command(s) given at appropriate times
+
 
 ## Planned Features
 
@@ -22,11 +31,10 @@ Invite link: ~~**Let IzduBot judge your players!**~~ CURRENTLY NOT OPEN TO THE P
   - Character lookup
     - e.g. lookup a character's passive perception to see if they notice something without cluing them in that they may be supposed to notice something
   - Initiative tracking
-  - Monster stat blocks
-    - Currently only planned for individual sessions (with temporary storage), may eventually be extended to permanent storage
   - Monster rolls
-    - e.g. attack or save rolls
-    - Would be implemented alongside or after monster stat blocks
+    - Skill rolls
+  - Encounter planning
+    - Add a list of monsters and quantities ahead of time and, with a single command, start a session with the list of monsters loaded up
 - Character Features
   - Roll modifiers
     - e.g. your DM might give you a +3 to hit or save because of circumstances
@@ -43,7 +51,10 @@ As with the above regarding class-related information, while I could do that, th
 If I haven't listed the feature above as planned or in the FAQ, there are a number of possible reasons: the feature might be too difficult or tedious to implement at present, the feature might pose problems for homebrewers, or I may just not have thought of the feature at all yet. Feel free to let me know - if you think a feature would be useful, either as a player or DM, I'm interested in hearing about it, or I might tell you why it's not on the table.
 
 ## Troubleshooting
-Try enclosing any text (like ability names, character names, etc) in quotes "like so", and if it still doesn't work, check to make sure your command and arguments are spelled correctly and entered per the format. If you're 100% certain you're entering it correctly and it's still not working, contact me with, and I'll see what's up.
+
+### Basic Troubleshooting (e.g. "IzduBot isn't responding to my command")
+
+Try enclosing any text (like ability names, character names, etc) in quotes "like so", and if it still doesn't work, check to make sure your command and arguments are spelled correctly and entered per the format. If you're 100% certain you're entering it correctly and it's still not working, contact me with details, and I'll see what's up.
 
 ## Contact
 If you need (or want) to get in touch, I'm MrMonday#7732 on Discord, or email me at mohanbharath@gmail.com **with [IzduBot] in the subject line**.

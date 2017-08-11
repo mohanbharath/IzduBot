@@ -1,6 +1,6 @@
 """
 Created: 23 Jul 17
-Modified: 30 Jul 17
+Modified: 10 Aug 17
 
 @author = Bharath Mohan | MrMonday
 """
@@ -9,7 +9,7 @@ from discord.ext import commands
 import config
 import database
 
-STARTUP_EXTENSIONS = ['world', 'character', 'util']
+STARTUP_EXTENSIONS = ['world', 'character', 'dungeonmaster', 'util']
 
 class IzduBot(commands.Bot):
     def __init__(self):
