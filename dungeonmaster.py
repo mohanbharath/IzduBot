@@ -1,6 +1,6 @@
 """
 Created 07 Aug 17
-Modified 10 Aug 17
+Modified 11 Aug 17
 
 @author = Bharath Mohan | MrMonday
 """
@@ -245,11 +245,11 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def monsterattackroll(self, ctx, monster_id: int, advantage: int = 0):
-    """Format: izd_monsterattackroll monsterid advantage
-            where monster_id is the STATIC (not session) Monster ID
-            and advantage is 1 if the creature has advantage, -1 if the creature has disadvantage, and 0 (or blank) for neither
+        """Format: izd_monsterattackroll monsterid advantage
+                where monster_id is the STATIC (not session) Monster ID
+                and advantage is 1 if the creature has advantage, -1 if the creature has disadvantage, and 0 (or blank) for neither
 
-       Makes an attack roll for the specified monster."""
+           Makes an attack roll for the specified monster."""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
@@ -284,11 +284,11 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def monsterinitiative(self, ctx, monster_id: int, advantage: int = 0):
-    """Format: izd_monsterinitiativeroll monsterid advantage
-            where monster_id is the STATIC (not session) Monster ID
-            and advantage is 1 if the creature has advantage, -1 if the creature has disadvantage, and 0 (or blank) for neither
+        """Format: izd_monsterinitiativeroll monsterid advantage
+                where monster_id is the STATIC (not session) Monster ID
+                and advantage is 1 if the creature has advantage, -1 if the creature has disadvantage, and 0 (or blank) for neither
 
-       Makes an initiative roll for the specified monster."""
+           Makes an initiative roll for the specified monster."""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
