@@ -83,13 +83,15 @@ class Character:
     @commands.guild_only()
     async def create(self, ctx, str: int, dex: int, con: int, int: int, wis: int, cha: int, name: str, race: str, char_class: str, lvl: int,
                           align: int, hit_die: int, spell_stat: int):
-        """Creates a new character on the campaign server. Format: `izd_create STR DEX CON INT WIS CHA "name" "race" "class" level align_id hit_dice spell_stat`
-        \n where
-        align_id is between 1 and 9 inclusive, with 1-3 being Lawful Good, Lawful Neutral, and Lawful Evil, 4-6 being Neutral Good, True Neutral,
-        and Neutral Evil, and 7-9 being Chaotic Good, Chaotic Neutral, and Chaotic Evil respectively;
-        hit_dice being the hit dice for your class;
-        and spell_stat being the ability your class uses to cast spells, with 0 being for non-spell casters,
-        1 for STR, 2 for DEX, 3 for CON, 4 for INT, 5 for WIS, and 6 for CHA."""
+        """Format: `izd_create STR DEX CON INT WIS CHA "name" "race" "class" level align_id hit_dice spell_stat`
+                where:
+                align_id is between 1 and 9 inclusive, with 1-3 being Lawful Good, Lawful Neutral, and Lawful Evil, 4-6 being Neutral Good, True Neutral,
+                and Neutral Evil, and 7-9 being Chaotic Good, Chaotic Neutral, and Chaotic Evil respectively;
+                hit_dice is the hit dice for your class;
+                and spell_stat is the ability your class uses to cast spells, with 0 being for non-spell casters,
+                1 for STR, 2 for DEX, 3 for CON, 4 for INT, 5 for WIS, and 6 for CHA.
+
+           Creates a new character on the campaign server. """
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -120,6 +122,7 @@ class Character:
     @commands.guild_only()
     async def retire(self, ctx):
         """Format: izd_retire
+
            Retire the author's current character from the campaign """
         guild_id = ctx.guild.id
         user_id = ctx.author.id
@@ -134,8 +137,9 @@ class Character:
     @commands.guild_only()
     async def abilitycheck(self, ctx, ability: str, advantage: int = 0):
         """Format: izd_abilitycheck "ability" adv
-        where ability is STR, DEX, CON, INT, WIS, or CHA,
-        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+                where ability is STR, DEX, CON, INT, WIS, or CHA,
+                and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+
         Does an ability check using the author's current character sheet."""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
@@ -184,8 +188,9 @@ class Character:
     @commands.guild_only()
     async def skillcheck(self, ctx, skill: str, advantage: int = 0):
         """Format: izd_skillcheck "skill" adv,
-        where skill is the first word of the skill you want to use;
-        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+                where skill is the first word of the skill you want to use;
+                and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+
         Does a skill check using the author's current character sheet. """
         guild_id = ctx.guild.id
         user_id = ctx.author.id
@@ -241,8 +246,9 @@ class Character:
     @commands.guild_only()
     async def initiativeroll(self, ctx, advantage: int = 0):
         """Format: izd_initiativeroll adv
-        where adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
-        Does an initiative roll using the author's current character sheet.
+                where adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+                Does an initiative roll using the author's current character sheet.
+
         Currently, IzduBot doesn't keep track of initiative, so this is just a roll with the initiative modifier."""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
@@ -278,9 +284,10 @@ class Character:
     @commands.guild_only()
     async def attackroll(self, ctx, ability: str, weapon_proficiency: int, advantage: int = 0):
         """Format: izd_attackroll "ability" weapon_proficiency adv,
-        where "ability" is the same as with abilitycheck;
-        weapon_proficiency is 1 if you have proficiency with the weapon being used, 0 otherwise;
-        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+                where "ability" is the same as with abilitycheck;
+                weapon_proficiency is 1 if you have proficiency with the weapon being used, 0 otherwise;
+                and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+
         Does an attack roll using the author's character sheet"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
@@ -333,8 +340,11 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def abilitysave(self, ctx, ability: str, advantage: int = 0):
-        """ Does an ability save. Format: izd_abilitysave "ability" adv, where ability is STR, DEX, CON, INT, WIS, or CHA;
-        and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
+        """Format: izd_abilitysave "ability" adv
+                where ability is STR, DEX, CON, INT, WIS, or CHA;
+                and adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+
+            Does an ability save."""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -383,8 +393,10 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def spellattack(self, ctx, advantage: int = 0):
-        """Makes a spell attack roll. Format: izd_spellattack adv
-        where adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise"""
+        """Format: izd_spellattack adv
+                where adv is 1 if you have advantage, -1 if you have disadvantage, blank (or 0) otherwise
+
+           Makes a spell attack roll. """
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -426,7 +438,9 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def spellsavedc(self, ctx):
-        """Outputs the save DC for your character's spells. Format: izd_spellsavedc"""
+        """Format: izd_spellsavedc
+
+           Outputs the save DC for your character's spells."""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -454,6 +468,12 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def attackmade(self, ctx, target: discord.Member, attack_roll: int, damage_amt: int):
+        """Format: izd_healcharacter @targetplayer attackroll damageamt
+                where @targetplayer is a MENTION of the player to heal,
+                attackroll is the roll for the attack with all modifiers included (DOES NOT ACCEPT DICE ROLLS)
+                and damageamt is the amount of damage the attack would deal if successful (DOES NOT ACCEPT DICE ROLLS)
+
+           An attack is made against a character: does it hit?"""
         guild_id = ctx.guild.id
         user_id = target.id
         db = database.Database("guilds.db")
@@ -480,8 +500,10 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def healcharacter(self, ctx, target: discord.Member, heal_amt: int):
-        """One character (or the DM) heals another character. Format: izd_healcharacter @targetplayer heal_amt
-        , where @targetplayer is a MENTION of the player to heal, and heal_amt is the amount to heal them (DOES NOT ACCEPT DICE ROLLS, ONLY NUMBERS)."""
+        """Format: izd_healcharacter @targetplayer heal_amt
+                where @targetplayer is a MENTION of the player to heal, and heal_amt is the amount to heal them (DOES NOT ACCEPT DICE ROLLS, ONLY NUMBERS).
+
+           One character (or the DM) heals another character. """
         guild_id = ctx.guild.id
         user_id = target.id
         db = database.Database("guilds.db")
@@ -494,6 +516,10 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def gainsaveprof(self, ctx, ability: str):
+        """Format: izd_gainsaveprof "ability"
+                where ability is the abilty to gain a save proficiency in (STR, DEX, etc.)
+
+           Adds the requested save proficiency to the character sheet"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -518,6 +544,10 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def gainskillprof(self, ctx, skill: str):
+        """Format: izd_gainskillprof "skill"
+                where skill is the first word of the skill to gain a save proficiency in (e.g. "stealth" for stealth or "animal" for animal handling)
+
+           Adds the requested skill proficiency to the character sheet"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -546,6 +576,10 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def gaintemphp(self, ctx, hp_amt: int):
+        """Format: izd_gainsaveprof amount
+                where amount is the amount of temp HP to gain
+
+           Adds the requested amount of temp HP to the character sheet"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -562,6 +596,10 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def changeac(self, ctx, new_ac: int):
+        """Format: izd_changeac newac
+                where newac is the new AC for the character
+
+           Updates the AC on the character sheet"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
@@ -579,6 +617,10 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def changealign(self, ctx, new_align: int):
+        """Format: izd_gainsaveprof "ability"
+                where ability is the the abilty to gain a save proficiency in (STR, DEX, etc.)
+
+           Adds the requested save proficiency to the character sheet"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")

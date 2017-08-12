@@ -20,7 +20,10 @@ class World:
     @commands.command()
     @commands.guild_only()
     async def roll(self, ctx, dice: str):
-        """Handles miscellaneous rolls. Format: izd_roll NdM, where N is the number of dice to roll and M is the number of sides on the dice"""
+        """Format: izd_roll NdM
+                where N is the number of dice to roll and M is the number of sides on the dice
+
+           Handles miscellaneous rolls. """
         try:
             rolls, sides = map(int, dice.split('d'))
         except:
@@ -38,7 +41,9 @@ class World:
     @commands.command()
     @commands.guild_only()
     async def rollsix(self, ctx):
-        """Was a test command left in for posterity's sake. No input, rolls a single d6. Format: izd_rollsix"""
+        """Format: izd_rollsix
+
+           Was a test command left in for posterity's sake. No input, rolls a single d6. """
         result = randint(1, 6)
         message = '{}: 1d6 = {}'.format(ctx.author.mention, result)
         await ctx.send(content=message)
@@ -47,8 +52,11 @@ class World:
     @commands.command()
     @commands.guild_only()
     async def advantage(self, ctx, dice: str, keep: int):
-        """Rolls dice with advantage. Format: izd_advantage NdM K, where N is the number of dice to roll, M is the number of sides on the dice,
-        and K is the number of high rolls to keep"""
+        """Format: izd_advantage NdM K
+                where N is the number of dice to roll, M is the number of sides on the dice,
+                and K is the number of high rolls to keep
+
+           Rolls dice with advantage. """
         try:
             rolls, sides = map(int, dice.split('d'))
         except:
@@ -70,8 +78,11 @@ class World:
     @commands.command()
     @commands.guild_only()
     async def disadvantage(self, ctx, dice: str, keep: int):
-        """Rolls dice with disadvantage. Format: izd_disadvantage NdM K, where N is the number of dice to roll, M is the number of sides on the dice,
-        and K is the number of low rolls to keep"""
+        """Format: izd_disadvantage NdM K
+                where N is the number of dice to roll, M is the number of sides on the dice,
+                and K is the number of low rolls to keep
+
+           Rolls dice with disadvantage. """
         try:
             rolls, sides = map(int, dice.split('d'))
         except:

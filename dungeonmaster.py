@@ -126,7 +126,8 @@ class DungeonMaster:
     @commands.guild_only()
     async def listmonsters(self, ctx):
         '''Format: izd_listmonsters
-           REQUIRES GM ROLE ON CAMPAIGN
+                REQUIRES GM ROLE ON CAMPAIGN
+
            Lists all monsters for this campaign'''
         guild_id = ctx.guild.id
         author = ctx.author
@@ -147,6 +148,12 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def monsterabilitycheck(self, ctx, monster_id: int, ability: str, advantage: int = 0):
+        """Format: izd_monsterabilitycheck monsterid "ability" advantage
+                where monster_id is the STATIC (not session) Monster ID
+                ability is the the abilty to gain a save proficiency in (STR, DEX, etc.)
+                and advantage is 1 if the creature has advantage, -1 if the creature has disadvantage, and 0 (or blank) for neither
+
+           Makes a monster ability check for the specified monster."""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
@@ -190,6 +197,12 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def monsterabilitysave(self, ctx, monster_id: int, ability: str, advantage: int = 0):
+        """Format: izd_monsterabilitysave monsterid "ability" advantage
+                where monster_id is the STATIC (not session) Monster ID
+                ability is the the abilty to gain a save proficiency in (STR, DEX, etc.)
+                and advantage is 1 if the creature has advantage, -1 if the creature has disadvantage, and 0 (or blank) for neither
+
+           Makes a monster ability save for the specified monster."""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
@@ -232,6 +245,11 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def monsterattackroll(self, ctx, monster_id: int, advantage: int = 0):
+    """Format: izd_monsterattackroll monsterid advantage
+            where monster_id is the STATIC (not session) Monster ID
+            and advantage is 1 if the creature has advantage, -1 if the creature has disadvantage, and 0 (or blank) for neither
+
+       Makes an attack roll for the specified monster."""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
@@ -266,6 +284,11 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def monsterinitiative(self, ctx, monster_id: int, advantage: int = 0):
+    """Format: izd_monsterinitiativeroll monsterid advantage
+            where monster_id is the STATIC (not session) Monster ID
+            and advantage is 1 if the creature has advantage, -1 if the creature has disadvantage, and 0 (or blank) for neither
+
+       Makes an initiative roll for the specified monster."""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
@@ -309,6 +332,9 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def sessionstart(self, ctx):
+        """Format: izd_sessionstart
+
+           Starts a combat session to keep track of monster health in encounters"""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
@@ -330,6 +356,9 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def sessionend(self, ctx):
+        """Format: izd_sessionend
+
+           End the current combat session, effectively killing all monsters present"""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
@@ -354,6 +383,10 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def addsessionmonster(self, ctx, static_monster_id: int):
+        """Format: izd_addsessionmonster staticmonsterid
+                where staticmonsterid is the STATIC ID of the monster to be added
+
+           Add one instance or copy of the specified monster to the combat session"""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
@@ -379,6 +412,9 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def listsessionmonsters(self, ctx):
+        """Format: izd_listsessionmonsters
+
+           List all monsters in the current combat session, giving session and static IDs"""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
@@ -398,6 +434,10 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def getsessionmonsterhp(self, ctx, session_monster_id: int):
+        """Format: izd_sessionstart sessionmonsterid
+                where sessionmonsterid is the SESSION ID of the monster you want to check
+
+           Tells you how much HP the specified monster has."""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
@@ -423,6 +463,11 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def dealdmgsessionmonster(self, ctx, session_monster_id: int, damage_amt: int):
+        """Format: izd_sessionstart sessionmonsterid damageamt
+                where sessionmonsterid is the SESSION ID of the monster you want to damage
+                and damageamt is the amount of damage to deal (can be negative for healing)
+
+           Deals damageamt damage to the monster. Can use negative numbers to heal monsters"""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
@@ -448,6 +493,11 @@ class DungeonMaster:
     @commands.command()
     @commands.guild_only()
     async def killsessionmonster(self, ctx, session_monster_id: int):
+        """Format: izd_sessionstart sessionmonsterid
+                where sessionmonsterid is the SESSION ID of the monster you want to kill
+
+           Kills the specified monster, deleting it. THIS ACTION CANNOT BE UNDONE - a 0 health monster is still in the session.
+            Only kill to remove the possiblity of reviving the monster."""
         guild_id = ctx.guild.id
         author = ctx.author
         if not self.check_role(ctx, author):
