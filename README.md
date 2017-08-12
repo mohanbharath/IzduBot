@@ -4,7 +4,7 @@
 
 IzduBot is a Discord bot that makes it more feasible and simple to run campaigns via Discord. Currently rolls dice, maintains (some) character sheet information, and integrates character-related rolls (like attack rolls and initiative rolls) with stored stats and info.
 
-Invite link: ~~**Let IzduBot judge your players!**~~ CURRENTLY NOT OPEN TO THE PUBLIC
+Invite link: **[Let IzduBot judge your players!](https://discordapp.com/oauth2/authorize?client_id=340690112025460746&scope=bot&permissions=19456)**
 
 ## Current Features
 
