@@ -516,6 +516,11 @@ class Character:
     @commands.command()
     @commands.guild_only()
     async def updateabilityscore(self, ctx, ability: str, new_score: int):
+        """Format: izd_updateabilityscore "ability" new_score,
+                where "ability" is STR, DEX, CON, INT, WIS, or CHA in quotes;
+                and new_score is the new score for the ability in question
+
+        Updates the ability score on your character sheet"""
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         db = database.Database("guilds.db")
