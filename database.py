@@ -1,6 +1,6 @@
 """
 Created 24 Jul 17
-Modified 10 Aug 17
+Modified 17 Aug 17
 
 @author = Bharath Mohan | MrMonday
 """
@@ -295,6 +295,18 @@ class Database:
             return None
         value = self.cursor.fetchone()
         return value[0]
+
+    def set_ability_score(self, guild_id: int, user_id: int, ability_id: int, new_score: int):
+        assert (ability_id < 7 and ability_id > 0)
+        ability = self.ability_lookup[ability_id]
+        try:
+            self.cursor.execute(''' UPDATE _{}_characters SET {} = {}
+                                    WHERE active = 1 AND user_id = {}
+                                '''.format(guild_id, ability, new_score, user_id))
+            self.database.commit()
+        except sqlite3.OperationalError as e:
+            return None
+        return new_score
 
     def level_up(self, guild_id: int, user_id: int):
         hit_die = self.get_hit_die(guild_id, user_id)

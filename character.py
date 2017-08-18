@@ -1,6 +1,6 @@
 """
 Created 25 Jul 17
-Modified 11 Aug 17
+Modified 17 Aug 17
 
 @author = Bharath Mohan | MrMonday
 """
@@ -510,6 +510,30 @@ class Character:
         prev_cur_hp = db.get_temp_hp(guild_id, user_id)
         new_cur_hp = db.heal_damage(guild_id, user_id, heal_amt)
         await ctx.send(content='{} - You were healed for {}, bringing you from {} HP to {} HP'.format(target.mention, heal_amt, prev_cur_hp, new_cur_hp))
+        db.close_connection()
+        return
+
+    @commands.command()
+    @commands.guild_only()
+    async def updateabilityscore(self, ctx, ability: str, new_score: int):
+        guild_id = ctx.guild.id
+        user_id = ctx.author.id
+        db = database.Database("guilds.db")
+        if not db.has_char(guild_id, user_id):
+            await ctx.send("You do not appear to have an active character in this campaign. This may be because you recently retired a character, or because you have not ever made a character in this campaign. Please make a character.")
+            db.close_connection()
+            return
+        ability_id = -1
+        for k,v in self.ability_lookup.items():
+            if v.upper() == ability.upper():
+                ability_id = k
+        if (ability_id < 1):
+            await ctx.send(content='Ability for save is invalid! Valid inputs are STR, DEX, CON, INT, WIS, CHA. Perhaps you misspelled your input?')
+            db.close_connection()
+            return
+        db.set_ability_score(guild_id, user_id, ability_id, new_score)
+        changed_score = db.get_ability_score(guild_id, user_id, ability_id)
+        await ctx.send(content='{} - {} ability score is now set to {}'.format(ctx.author.mention, ability.upper(), changed_score))
         db.close_connection()
         return
 
