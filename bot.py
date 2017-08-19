@@ -1,6 +1,6 @@
 """
 Created: 23 Jul 17
-Modified: 10 Aug 17
+Modified: 18 Aug 17
 
 @author = Bharath Mohan | MrMonday
 """
@@ -50,14 +50,14 @@ class IzduBot(commands.Bot):
         botlist = list(filter(lambda u: u.bot, guild.members))
         member_count = len(guild.members)
         if len(botlist) / member_count >= 0.60:
-            await guild.default_channel.send("To avoid bot collection servers, I auto leave any server where 60% or above of the users are bots, sorry!")
+            #await guild.default_channel.send("To avoid bot collection servers, I auto leave any server where 60% or above of the users are bots, sorry!")
             await guild.leave()
             print('Joined and left guild {} due to high bot population'.format(str(guild.id)))
         else:
             db = database.Database("guilds.db")
             db.add_guild_table(str(guild.id))
             db.close_connection()
-            await guild.default_channel.send('Bleep bloop. IzduBot hath arrived to judge your worth and bless or curse your luck.')
+            #await guild.default_channel.send('Bleep bloop. IzduBot hath arrived to judge your worth and bless or curse your luck.')
             print('Joined guild {} successfully'.format(str(guild.id)))
 
     async def on_guild_remove(self, guild):
