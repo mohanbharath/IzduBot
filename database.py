@@ -1,6 +1,6 @@
 """
 Created 24 Jul 17
-Modified 17 Aug 17
+Modified 19 Aug 17
 
 @author = Bharath Mohan | MrMonday
 """
@@ -112,7 +112,7 @@ class Database:
     def has_char(self, guild_id: int, user_id: int):
         try:
             self.cursor.execute(''' SELECT char_id FROM _{}_characters
-                                    WHERE alive = 1 AND user_id = {}
+                                    WHERE active = 1 AND user_id = {}
                                 '''.format(guild_id, user_id))
         except sqlite3.OperationalError as e:
             return None
