@@ -1,6 +1,6 @@
 """
 Created 25 Jul 17
-Modified 17 Aug 17
+Modified 08 Sep 17
 
 @author = Bharath Mohan | MrMonday
 """
@@ -117,6 +117,42 @@ class Character:
             await ctx.send("{} - Character {} has been created! Please note that your character currently has no skill or save proficiencies - please use izd_gainskillprof and izd_gainsaveprof to add those. In addition, your character has the default armor class (10 + DEX modifier) - if you want to equip armor with an AC bonus, use izd_changeac to adjust your AC value.".format(ctx.author.mention, char_name))
             db.close_connection()
             return
+
+    @commands.command()
+    @commands.guild_only()
+    async def getstats(self, ctx):
+        """Format: izd_getstats
+
+           Outputs your character's stats and modifiers """
+        guild_id = ctx.guild.id
+        user_id = ctx.author.id
+        db = database.Database("guilds.db")
+        if not db.has_char(guild_id, user_id):
+            await ctx.send(content='You do not appear to have an active character in this campaign. This may be because you recently retired a character, or because you have not ever made a character in this campaign. Please make a character.')
+            db.close_connection()
+            return
+        str_score = db.get_ability_score(guild_id, user_id, 1)
+        str_mod = math.floor((str_score - 10) / 2)
+        dex_score = db.get_ability_score(guild_id, user_id, 2)
+        dex_mod = math.floor((dex_score - 10) / 2)
+        con_score = db.get_ability_score(guild_id, user_id, 3)
+        con_mod = math.floor((con_score - 10) / 2)
+        int_score = db.get_ability_score(guild_id, user_id, 4)
+        int_mod = math.floor((int_score - 10) / 2)
+        wis_score = db.get_ability_score(guild_id, user_id, 5)
+        wis_mod = math.floor((wis_score - 10) / 2)
+        cha_score = db.get_ability_score(guild_id, user_id, 6)
+        cha_mod = math.floor((cha_score - 10) / 2)
+        message = ctx.author.mention
+        message += "\nSTR: " + str(str_score) + " (" + str(str_mod) + ")"
+        message += "\nDEX: " + str(dex_score) + " (" + str(dex_mod) + ")"
+        message += "\nCON: " + str(con_score) + " (" + str(con_mod) + ")"
+        message += "\nINT: " + str(int_score) + " (" + str(int_mod) + ")"
+        message += "\nWIS: " + str(wis_score) + " (" + str(wis_mod) + ")"
+        message += "\nCHA: " + str(cha_score) + " (" + str(cha_mod) + ")"
+        await ctx.send(content=message)
+        db.close_connection()
+        return
 
     @commands.command()
     @commands.guild_only()
